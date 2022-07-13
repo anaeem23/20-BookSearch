@@ -1,31 +1,33 @@
-import React, { useState } from 'react';
-import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
+import React, { useState } from "react";
+import {
+  Jumbotron,
+  Container,
+  CardColumns,
+  Card,
+  Button,
+} from "react-bootstrap";
 
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
+import Auth from "../utils/auth";
+import { removeBookId } from "../utils/localStorage";
 
-import { useMutation } from '@apollo/client';
-import { REMOVE_BOOK } from '../utils/mutations';
-import { useQuery } from '@apollo/client';
-import {GET_ME} from '../utils/queries'
-
-
+import { useMutation } from "@apollo/client";
+import { REMOVE_BOOK } from "../utils/mutations";
+import { useQuery } from "@apollo/client";
+import { GET_ME } from "../utils/queries";
 
 const SavedBooks = () => {
- 
+  const { loading, data } = useQuery(GET_ME, {
+    variables: {
+      _id: Auth.getProfile().data._id,
+    },
+  });
+  console.log(data)
+  const userData = data?.me || {};
 
- const {loading,data} = useQuery(GET_ME,{
-   variables: {
-     _id:Auth.getProfile().data._id
-   }
- });
+  console.log(userData)
 
- const userData = data?.me || {}
+  const [removeBook, { error }] = useMutation(REMOVE_BOOK);
 
-  
-  
-  const [removeBook,{error}] = useMutation(REMOVE_BOOK)
-  
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -34,19 +36,9 @@ const SavedBooks = () => {
     }
 
     try {
-      // const response = await deleteBook(bookId, token);
-
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
-
-      // const updatedUser = await response.json();
-      // setUserData(updatedUser);
-      // // upon success, remove book's id from localStorage
-
-      const {data} = await removeBook({
-        variables:{bookId:bookId}
-      })
+      const { data } = await removeBook({
+        variables: { bookId: bookId },
+      });
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
@@ -60,7 +52,7 @@ const SavedBooks = () => {
 
   return (
     <>
-      <Jumbotron fluid className='text-light bg-dark'>
+      <Jumbotron fluid className="text-light bg-dark">
         <Container>
           <h1>Viewing saved books!</h1>
         </Container>
@@ -68,19 +60,30 @@ const SavedBooks = () => {
       <Container>
         <h2>
           {userData.savedBooks.length
-            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
-            : 'You have no saved books!'}
+            ? `Viewing ${userData.savedBooks.length} saved ${
+                userData.savedBooks.length === 1 ? "book" : "books"
+              }:`
+            : "You have no saved books!"}
         </h2>
         <CardColumns>
           {userData.savedBooks.map((book) => {
             return (
-              <Card key={book.bookId} border='dark'>
-                {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
+              <Card key={book.bookId} border="dark">
+                {book.image ? (
+                  <Card.Img
+                    src={book.image}
+                    alt={`The cover for ${book.title}`}
+                    variant="top"
+                  />
+                ) : null}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
-                  <p className='small'>Authors: {book.authors}</p>
+                  <p className="small">Authors: {book.authors}</p>
                   <Card.Text>{book.description}</Card.Text>
-                  <Button className='btn-block btn-danger' onClick={() => handleDeleteBook(book.bookId)}>
+                  <Button
+                    className="btn-block btn-danger"
+                    onClick={() => handleDeleteBook(book.bookId)}
+                  >
                     Delete this Book!
                   </Button>
                 </Card.Body>

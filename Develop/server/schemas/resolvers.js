@@ -6,7 +6,7 @@ const resolvers = {
   Query: {
     // Get User
     me: async (parent, { _id }) => {
-      return User.findOne({ _id: _id });
+      return User.findOne({ _id: _id }).populate('savedBooks');
     },
   },
 
@@ -17,8 +17,8 @@ const resolvers = {
 
       return { token, user };
     },
-    login: async (parent, { username, email, password }) => {
-      const user = await User.findOne({ $or: [{ username: body.username }, { email: body.email }] });
+    login: async (parent, { email, password }) => {
+      const user = await User.findOne({ $or: [{ email: email }] });
 
       if (!user) {
         throw new AuthenticationError("No profile with this email/username found!");
@@ -36,11 +36,12 @@ const resolvers = {
 
     saveBook: async (parent, args, context) => {
       // If context has a `user` property, that means the user executing this mutation has a valid JWT and is logged in
+      console.log("Arguments" ,args)
       if (context.user) {
         return User.findOneAndUpdate(
           { _id: context.user._id },
           {
-            $addToSet: { saveBook: args },
+            $addToSet: { savedBooks: args },
           },
           {
             new: true,
@@ -57,7 +58,7 @@ const resolvers = {
       if (context.user) {
         return User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { saveBook : {bookId:bookId} } },
+          { $pull: { savedBooks : {bookId:bookId} } },
           { new: true }
         );
       }
