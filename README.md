@@ -68,4 +68,4 @@ THEN I am logged out of the site and presented with a menu with the options Sear
 
 Link to the Demo: https://book-search-graphql-123.herokuapp.com/
 
-Link to Walkthrough Video: Pending
+Link to Walkthrough Video: https://drive.google.com/file/d/18jofNY-LIbjDP13yHZzUeCXUo5oTQTrM/view
